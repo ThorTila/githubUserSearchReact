@@ -2,6 +2,8 @@
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
+function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
+
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
@@ -35,20 +37,24 @@ var App = function (_React$Component) {
       var _this2 = this;
 
       event.preventDefault();
-      var searchText = this.state.searchText;
+      var searchText = this.state.searchText,
+          url = event.currentTarget.href || "https://api.github.com/search/users?q=" + searchText;
 
-      var url = "https://api.github.com/search/users?q=" + searchText;
       fetch(url).then(function (response) {
-        var link = response.headers.get("link"),
-            links = _this2.parseLink(link);
-        _this2.setState({
-          links: {
-            linkNext: links.next,
-            linkLast: links.last,
-            totalLinks: links.total
-          }
-        });
-        console.log(_this2.state.links);
+        var link = response.headers.get("link");
+        if (link) {
+          var links = _this2.parseLink(link);
+          console.log(links);
+          _this2.setState({
+            links: {
+              next: links.next,
+              prev: links.prev,
+              first: links.first,
+              last: links.last,
+              total: links.total
+            }
+          });
+        }
         return response;
       }).then(function (response) {
         return response.json();
@@ -59,8 +65,8 @@ var App = function (_React$Component) {
   }, {
     key: "parseLink",
     value: function parseLink(link) {
-      if (link.length === 0) {
-        throw new Error("link header is zero length");
+      if (link === null) {
+        throw new Error("link header is null");
       }
       var parts = link.split(',');
       var links = {};
@@ -95,16 +101,15 @@ var App = function (_React$Component) {
             { htmlFor: "searchText" },
             "Search by user name"
           ),
-          React.createElement("input", {
-            type: "text",
-            id: "searchText",
-            onChange: function onChange(event) {
+          React.createElement("input", { type: "text", id: "searchText", onChange: function onChange(event) {
               return _this3.onChangeHandle(event);
-            },
-            value: this.state.searchText }),
+            }, value: this.state.searchText }),
           " "
         ),
-        React.createElement(UsersList, { users: this.state.users })
+        React.createElement(UsersList, { users: this.state.users }),
+        React.createElement(Pagination, { links: this.state.links, changePage: function changePage(event) {
+            return _this3.onSubmit(event);
+          } })
       );
     }
   }]);
@@ -112,8 +117,100 @@ var App = function (_React$Component) {
   return App;
 }(React.Component);
 
-var UsersList = function (_React$Component2) {
-  _inherits(UsersList, _React$Component2);
+var Pagination = function (_React$Component2) {
+  _inherits(Pagination, _React$Component2);
+
+  function Pagination() {
+    _classCallCheck(this, Pagination);
+
+    return _possibleConstructorReturn(this, (Pagination.__proto__ || Object.getPrototypeOf(Pagination)).apply(this, arguments));
+  }
+
+  _createClass(Pagination, [{
+    key: "render",
+    value: function render() {
+      if (this.props.links.total) {
+        return React.createElement(
+          "div",
+          { className: "pagination" },
+          React.createElement(PaginationList, { links: this.props.links, changePage: this.props.changePage })
+        );
+      } else {
+        return null;
+      }
+    }
+  }]);
+
+  return Pagination;
+}(React.Component);
+
+var PaginationList = function (_React$Component3) {
+  _inherits(PaginationList, _React$Component3);
+
+  function PaginationList() {
+    _classCallCheck(this, PaginationList);
+
+    return _possibleConstructorReturn(this, (PaginationList.__proto__ || Object.getPrototypeOf(PaginationList)).apply(this, arguments));
+  }
+
+  _createClass(PaginationList, [{
+    key: "createList",
+    value: function createList() {
+      var linksList = [];
+      if (this.props.links.prev) {
+        linksList = [React.createElement(
+          "li",
+          { key: 0 },
+          React.createElement(
+            "a",
+            { href: this.props.links.prev, onClick: this.props.changePage },
+            "Previous"
+          )
+        )];
+      }
+      for (var _i = 1; _i <= this.props.links.total; _i++) {
+        linksList = [].concat(_toConsumableArray(linksList), [React.createElement(
+          "li",
+          { key: _i },
+          React.createElement(
+            "a",
+            null,
+            _i
+          )
+        )]);
+      }
+      var i = linksList.length;
+      linksList = [].concat(_toConsumableArray(linksList), [React.createElement(
+        "li",
+        { key: i + 1 },
+        React.createElement(
+          "a",
+          { href: this.props.links.next, onClick: this.props.changePage },
+          "Next"
+        )
+      )]);
+      if (linksList.length < 2) {
+        return null;
+      } else {
+        return linksList;
+      }
+    }
+  }, {
+    key: "render",
+    value: function render() {
+      return React.createElement(
+        "ul",
+        null,
+        this.createList()
+      );
+    }
+  }]);
+
+  return PaginationList;
+}(React.Component);
+
+var UsersList = function (_React$Component4) {
+  _inherits(UsersList, _React$Component4);
 
   function UsersList() {
     _classCallCheck(this, UsersList);
@@ -142,8 +239,8 @@ var UsersList = function (_React$Component2) {
   return UsersList;
 }(React.Component);
 
-var User = function (_React$Component3) {
-  _inherits(User, _React$Component3);
+var User = function (_React$Component5) {
+  _inherits(User, _React$Component5);
 
   function User() {
     _classCallCheck(this, User);
