@@ -31,6 +31,7 @@ class App extends React.Component {
               total: links.total
             }
           })
+          console.log(this.state.links);
         }
         return response;
       })
@@ -53,7 +54,11 @@ class App extends React.Component {
           name = section[1].replace(/rel="(.*)"/, '$1').trim();
         links[name] = url;
       }
-      const totalPages = links.last.match(/page=(\d+).*$/)[1];
+      if (links.last) {
+        var totalPages = links.last.match(/page=(\d+).*$/)[1];
+      } else {
+        var totalPages = Number(links.prev.match(/page=(\d+).*$/)[1]) + 1;
+      }
       links.total = Number(totalPages);
       return links;
     }
@@ -66,7 +71,7 @@ class App extends React.Component {
           <input type="text" id="searchText" onChange={event => this.onChangeHandle(event)} value={this.state.searchText}/> {/* ref */}
         </form>
         <UsersList users={this.state.users}/>
-        <Pagination links={this.state.links} changePage={event => this.onSubmit(event)}/>
+        <Pagination links={this.state.links} searched={this.state.searchText} changePage={event => this.onSubmit(event)}/>
       </div>
     );
   }
@@ -77,7 +82,7 @@ class Pagination extends React.Component {
     if (this.props.links.total) {
       return (
         <div className='pagination'>
-            <PaginationList links={this.props.links} changePage={this.props.changePage}/>
+            <PaginationList links={this.props.links} searched={this.props.searched} changePage={this.props.changePage}/>
         </div>
       )
     } else {
@@ -89,15 +94,18 @@ class Pagination extends React.Component {
 class PaginationList extends React.Component {
   
   createList() {
-    let linksList = [];
+    let linksList = [],
+      url = `https://api.github.com/search/users?q=${this.props.searched}&page=`;
     if (this.props.links.prev) {
       linksList = [<li key={0}><a href={this.props.links.prev} onClick={this.props.changePage}>Previous</a></li>]
     }
     for (let i=1;i<=this.props.links.total;i++) {
-      linksList = [...linksList,<li key={i}><a>{i}</a></li>];
+      linksList = [...linksList,<li key={i}><a href={url + i} onClick={this.props.changePage}>{i}</a></li>];
     }
-    let i = linksList.length;
-    linksList = [...linksList, <li key={i + 1}><a href={this.props.links.next} onClick={this.props.changePage}>Next</a></li>]
+    if (this.props.links.last) {
+      let i = linksList.length;
+      linksList = [...linksList, <li key={i + 1}><a href={this.props.links.next} onClick={this.props.changePage}>Next</a></li>];
+    }
     if (linksList.length < 2) {
       return null;
     } else {
