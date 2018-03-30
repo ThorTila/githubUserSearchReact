@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "babel script.js --out-file built.js"
+    "start": "babel script.js --watch --out-file built.js",
+    "sass": "node-sass --output-style expanded --source-map true -w -o css sass"
   },
   "keywords": [],
   "author": "",
@@ -13,5 +14,8 @@
     "babel-cli": "^6.26.0",
     "babel-preset-env": "^1.6.1",
     "babel-preset-react": "^6.24.1"
+  },
+  "dependencies": {
+    "node-sass": "^4.8.3"
   }
 }

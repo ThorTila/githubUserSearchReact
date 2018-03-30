@@ -18,7 +18,8 @@ var App = function (_React$Component) {
 
     _this.state = {
       searchText: '',
-      users: []
+      users: [],
+      links: {}
     };
     return _this;
   }
@@ -38,10 +39,43 @@ var App = function (_React$Component) {
 
       var url = "https://api.github.com/search/users?q=" + searchText;
       fetch(url).then(function (response) {
+        var link = response.headers.get("link"),
+            links = _this2.parseLink(link);
+        _this2.setState({
+          links: {
+            linkNext: links.next,
+            linkLast: links.last,
+            totalLinks: links.total
+          }
+        });
+        console.log(_this2.state.links);
+        return response;
+      }).then(function (response) {
         return response.json();
       }).then(function (responseJson) {
         return _this2.setState({ users: responseJson.items });
       });
+    }
+  }, {
+    key: "parseLink",
+    value: function parseLink(link) {
+      if (link.length === 0) {
+        throw new Error("link header is zero length");
+      }
+      var parts = link.split(',');
+      var links = {};
+      for (var i = 0; i < parts.length; i++) {
+        var section = parts[i].split(';');
+        if (section.length !== 2) {
+          throw new Error("invalid data, no ';' in link header");
+        }
+        var url = section[0].replace(/<(.*)>/, '$1').trim(),
+            name = section[1].replace(/rel="(.*)"/, '$1').trim();
+        links[name] = url;
+      }
+      var totalPages = links.last.match(/page=(\d+).*$/)[1];
+      links.total = Number(totalPages);
+      return links;
     }
   }, {
     key: "render",
@@ -50,7 +84,7 @@ var App = function (_React$Component) {
 
       return React.createElement(
         "div",
-        null,
+        { className: "main" },
         React.createElement(
           "form",
           { onSubmit: function onSubmit(event) {
@@ -67,7 +101,8 @@ var App = function (_React$Component) {
             onChange: function onChange(event) {
               return _this3.onChangeHandle(event);
             },
-            value: this.state.searchText })
+            value: this.state.searchText }),
+          " "
         ),
         React.createElement(UsersList, { users: this.state.users })
       );
@@ -91,7 +126,7 @@ var UsersList = function (_React$Component2) {
     value: function render() {
       return React.createElement(
         "div",
-        null,
+        { className: "users-list" },
         this.users
       );
     }
@@ -121,7 +156,7 @@ var User = function (_React$Component3) {
     value: function render() {
       return React.createElement(
         "div",
-        null,
+        { className: "user" },
         React.createElement("img", { src: this.props.user.avatar_url, style: { maxWidth: '100px' } }),
         React.createElement(
           "a",
