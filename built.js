@@ -51,11 +51,16 @@ var App = function (_React$Component) {
               prev: links.prev,
               first: links.first,
               last: links.last,
-              total: links.total
+              total: links.total,
+              current: links.current
             }
           });
-          console.log(_this2.state.links);
+        } else {
+          _this2.setState({
+            links: {}
+          });
         }
+        console.log(_this2.state.links);
         return response;
       }).then(function (response) {
         return response.json();
@@ -82,10 +87,18 @@ var App = function (_React$Component) {
       }
       if (links.last) {
         var totalPages = links.last.match(/page=(\d+).*$/)[1];
+        links.total = Number(totalPages);
       } else {
-        var totalPages = Number(links.prev.match(/page=(\d+).*$/)[1]) + 1;
+        var _totalPages = Number(links.prev.match(/page=(\d+).*$/)[1]) + 1;
+        links.total = _totalPages;
       }
-      links.total = Number(totalPages);
+      if (links.next) {
+        var currentPage = Number(links.next.match(/page=(\d+).*$/)[1]) - 1;
+        links.current = currentPage;
+      } else {
+        var _currentPage = Number(links.prev.match(/page=(\d+).*$/)[1]) + 1;
+        links.current = _currentPage;
+      }
       return links;
     }
   }, {
@@ -108,8 +121,7 @@ var App = function (_React$Component) {
           ),
           React.createElement("input", { type: "text", id: "searchText", onChange: function onChange(event) {
               return _this3.onChangeHandle(event);
-            }, value: this.state.searchText }),
-          " "
+            }, value: this.state.searchText })
         ),
         React.createElement(UsersList, { users: this.state.users }),
         React.createElement(Pagination, { links: this.state.links, searched: this.state.searchText, changePage: function changePage(event) {
@@ -163,8 +175,16 @@ var PaginationList = function (_React$Component3) {
     value: function createList() {
       var linksList = [],
           url = "https://api.github.com/search/users?q=" + this.props.searched + "&page=";
-      if (this.props.links.prev) {
+      if (this.props.links.first) {
         linksList = [React.createElement(
+          "li",
+          { key: -1 },
+          React.createElement(
+            "a",
+            { href: this.props.links.first, onClick: this.props.changePage },
+            "First"
+          )
+        ), React.createElement(
           "li",
           { key: 0 },
           React.createElement(
@@ -180,7 +200,7 @@ var PaginationList = function (_React$Component3) {
           { key: i },
           React.createElement(
             "a",
-            { href: url + i, onClick: this.props.changePage },
+            { href: url + i, className: this.props.links.current === i ? 'active' : '', onClick: this.props.changePage },
             i
           )
         )]);
@@ -194,6 +214,14 @@ var PaginationList = function (_React$Component3) {
             "a",
             { href: this.props.links.next, onClick: this.props.changePage },
             "Next"
+          )
+        ), React.createElement(
+          "li",
+          { key: _i + 2 },
+          React.createElement(
+            "a",
+            { href: this.props.links.last, onClick: this.props.changePage },
+            "Last"
           )
         )]);
       }
@@ -262,7 +290,11 @@ var User = function (_React$Component5) {
       return React.createElement(
         "div",
         { className: "user" },
-        React.createElement("img", { src: this.props.user.avatar_url, style: { maxWidth: '100px' } }),
+        React.createElement(
+          "a",
+          { href: this.props.user.html_url, target: "_blank" },
+          React.createElement("img", { src: this.props.user.avatar_url, style: { maxWidth: '100px' } })
+        ),
         React.createElement(
           "a",
           { href: this.props.user.html_url, target: "_blank" },

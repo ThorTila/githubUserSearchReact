@@ -28,11 +28,16 @@ class App extends React.Component {
               prev: links.prev,
               first: links.first,
               last: links.last,
-              total: links.total
+              total: links.total,
+              current: links.current
             }
           })
-          console.log(this.state.links);
+        } else {
+          this.setState ({
+            links: {}
+          })
         }
+        console.log(this.state.links);
         return response;
       })
       .then(response => response.json())
@@ -55,23 +60,35 @@ class App extends React.Component {
         links[name] = url;
       }
       if (links.last) {
-        var totalPages = links.last.match(/page=(\d+).*$/)[1];
+        const totalPages = links.last.match(/page=(\d+).*$/)[1];
+        links.total = Number(totalPages);
       } else {
-        var totalPages = Number(links.prev.match(/page=(\d+).*$/)[1]) + 1;
+        const totalPages = Number(links.prev.match(/page=(\d+).*$/)[1]) + 1;
+        links.total = totalPages;
       }
-      links.total = Number(totalPages);
+      if (links.next) {
+        const currentPage = Number(links.next.match(/page=(\d+).*$/)[1]) - 1;
+        links.current = currentPage;
+      } else {
+        const currentPage = Number(links.prev.match(/page=(\d+).*$/)[1]) + 1;
+        links.current = currentPage;
+      }
       return links;
     }
 
   render() {
     return (
       <div className='main'>
+
         <form onSubmit={event => this.onSubmit(event)}>
           <label htmlFor="searchText">Search by user name</label>
-          <input type="text" id="searchText" onChange={event => this.onChangeHandle(event)} value={this.state.searchText}/> {/* ref */}
+          <input type="text" id="searchText" onChange={event => this.onChangeHandle(event)} value={this.state.searchText}/>
         </form>
+
         <UsersList users={this.state.users}/>
+
         <Pagination links={this.state.links} searched={this.state.searchText} changePage={event => this.onSubmit(event)}/>
+
       </div>
     );
   }
@@ -92,19 +109,33 @@ class Pagination extends React.Component {
 }
 
 class PaginationList extends React.Component {
-  
+
   createList() {
     let linksList = [],
       url = `https://api.github.com/search/users?q=${this.props.searched}&page=`;
-    if (this.props.links.prev) {
-      linksList = [<li key={0}><a href={this.props.links.prev} onClick={this.props.changePage}>Previous</a></li>]
+    if (this.props.links.first) {
+      linksList = [
+        <li key={-1}>
+          <a href={this.props.links.first} onClick={this.props.changePage}>First</a>
+        </li>,
+        <li key={0}>
+          <a href={this.props.links.prev} onClick={this.props.changePage}>Previous</a>
+        </li>
+      ];
     }
     for (let i=1;i<=this.props.links.total;i++) {
-      linksList = [...linksList,<li key={i}><a href={url + i} onClick={this.props.changePage}>{i}</a></li>];
+      linksList = [...linksList,<li key={i}><a href={url + i} className={(this.props.links.current === i) ? 'active' : ''} onClick={this.props.changePage}>{i}</a></li>];
     }
     if (this.props.links.last) {
       let i = linksList.length;
-      linksList = [...linksList, <li key={i + 1}><a href={this.props.links.next} onClick={this.props.changePage}>Next</a></li>];
+      linksList = [...linksList,
+        <li key={i + 1}>
+          <a href={this.props.links.next} onClick={this.props.changePage}>Next</a>
+        </li>,
+        <li key={i + 2}>
+          <a href={this.props.links.last} onClick={this.props.changePage}>Last</a>
+        </li>
+      ];
     }
     if (linksList.length < 2) {
       return null;
@@ -140,12 +171,13 @@ class User extends React.Component {
   render() {
     return (
       <div className='user'>
-        <img src={this.props.user.avatar_url} style={{maxWidth: '100px'}}/>
+        <a href={this.props.user.html_url} target="_blank">
+          <img src={this.props.user.avatar_url} style={{maxWidth: '100px'}}/>
+        </a>
         <a href={this.props.user.html_url} target="_blank">{this.props.user.login}</a>
       </div>
     );
   }
 }
-
 
 ReactDOM.render(<App />, document.getElementById('root'));
