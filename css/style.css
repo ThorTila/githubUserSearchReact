@@ -1,0 +1,140 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background: #0fb9b1;
+}
+
+.main {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 100vh;
+  text-align: center;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.main a {
+  text-decoration: none;
+}
+
+form {
+  padding: 20px;
+  margin: 30px;
+  background: #3867d6;
+  border-radius: 15px;
+  display: flex;
+  justify-content: space-between;
+}
+
+label {
+  font-size: 30px;
+  color: white;
+}
+
+input {
+  padding: 1%;
+  font-size: 30px;
+  font-weight: bold;
+  border: none;
+  border-radius: 5px;
+}
+
+.users-list {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
+  grid-gap: 2%;
+}
+
+.user {
+  display: inline-block;
+  background: white;
+  border-radius: 10px;
+  padding: 10%;
+  transition: all 1s;
+}
+
+.user:nth-of-type(2n) {
+  transform: rotate(10deg);
+}
+
+.user:nth-of-type(3n) {
+  transform: rotate(-10deg);
+}
+
+.user:nth-of-type(5n) {
+  transform: rotate(5deg);
+}
+
+.user:hover {
+  transform: scale(2);
+  z-index: 1;
+  box-shadow: 0px 0px 30px 15px black;
+}
+
+.user a {
+  display: block;
+  color: black;
+  font-weight: bold;
+  font-size: 20px;
+}
+
+.pagination ul {
+  display: inline-block;
+  padding: 25px;
+  border-radius: 35px;
+  margin: 30px;
+  background: rgba(255, 255, 255, 0.7);
+}
+
+.pagination ul li {
+  display: inline-block;
+  list-style-type: none;
+  margin: 10px;
+}
+
+.pagination ul li a {
+  display: block;
+  color: black;
+  height: 70px;
+  width: 70px;
+  line-height: 70px;
+  transition: all .5s;
+}
+
+.pagination ul li a:hover, .pagination ul li a.active {
+  border-radius: 10px;
+  color: white;
+}
+
+.pagination ul li a:hover {
+  background: #a5b1c2;
+}
+
+.pagination ul li a.active {
+  background: #4b6584;
+}
+
+.pagination ul li a.first, .pagination ul li a.last, .pagination ul li a.prev, .pagination ul li a.next {
+  font-weight: bold;
+}
+
+.pagination ul li a.first:hover, .pagination ul li a.last:hover, .pagination ul li a.prev:hover, .pagination ul li a.next:hover {
+  background: transparent;
+  color: #a5b1c2;
+  border-radius: 0;
+}
+
+.pagination ul li a.prev {
+  border-right: 1px solid black;
+}
+
+.pagination ul li a.next {
+  border-left: 1px solid black;
+}
+
+/*# sourceMappingURL=style.css.map */

@@ -119,7 +119,7 @@ var App = function (_React$Component) {
             { htmlFor: "searchText" },
             "Search by user name"
           ),
-          React.createElement("input", { type: "text", id: "searchText", onChange: function onChange(event) {
+          React.createElement("input", { autoFocus: true, type: "text", id: "searchText", onChange: function onChange(event) {
               return _this3.onChangeHandle(event);
             }, value: this.state.searchText })
         ),
@@ -181,7 +181,7 @@ var PaginationList = function (_React$Component3) {
           { key: -1 },
           React.createElement(
             "a",
-            { href: this.props.links.first, onClick: this.props.changePage },
+            { href: this.props.links.first, className: 'first', onClick: this.props.changePage },
             "First"
           )
         ), React.createElement(
@@ -189,7 +189,7 @@ var PaginationList = function (_React$Component3) {
           { key: 0 },
           React.createElement(
             "a",
-            { href: this.props.links.prev, onClick: this.props.changePage },
+            { href: this.props.links.prev, className: 'prev', onClick: this.props.changePage },
             "Previous"
           )
         )];
@@ -212,7 +212,7 @@ var PaginationList = function (_React$Component3) {
           { key: _i + 1 },
           React.createElement(
             "a",
-            { href: this.props.links.next, onClick: this.props.changePage },
+            { href: this.props.links.next, className: 'next', onClick: this.props.changePage },
             "Next"
           )
         ), React.createElement(
@@ -220,7 +220,7 @@ var PaginationList = function (_React$Component3) {
           { key: _i + 2 },
           React.createElement(
             "a",
-            { href: this.props.links.last, onClick: this.props.changePage },
+            { href: this.props.links.last, className: 'last', onClick: this.props.changePage },
             "Last"
           )
         )]);

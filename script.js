@@ -82,9 +82,8 @@ class App extends React.Component {
 
         <form onSubmit={event => this.onSubmit(event)}>
           <label htmlFor="searchText">Search by user name</label>
-          <input type="text" id="searchText" onChange={event => this.onChangeHandle(event)} value={this.state.searchText}/>
+          <input autoFocus type="text" id="searchText" onChange={event => this.onChangeHandle(event)} value={this.state.searchText}/>
         </form>
-
         <UsersList users={this.state.users}/>
 
         <Pagination links={this.state.links} searched={this.state.searchText} changePage={event => this.onSubmit(event)}/>
@@ -116,10 +115,10 @@ class PaginationList extends React.Component {
     if (this.props.links.first) {
       linksList = [
         <li key={-1}>
-          <a href={this.props.links.first} onClick={this.props.changePage}>First</a>
+          <a href={this.props.links.first} className={'first'} onClick={this.props.changePage}>First</a>
         </li>,
         <li key={0}>
-          <a href={this.props.links.prev} onClick={this.props.changePage}>Previous</a>
+          <a href={this.props.links.prev} className={'prev'} onClick={this.props.changePage}>Previous</a>
         </li>
       ];
     }
@@ -130,10 +129,10 @@ class PaginationList extends React.Component {
       let i = linksList.length;
       linksList = [...linksList,
         <li key={i + 1}>
-          <a href={this.props.links.next} onClick={this.props.changePage}>Next</a>
+          <a href={this.props.links.next} className={'next'} onClick={this.props.changePage}>Next</a>
         </li>,
         <li key={i + 2}>
-          <a href={this.props.links.last} onClick={this.props.changePage}>Last</a>
+          <a href={this.props.links.last} className={'last'} onClick={this.props.changePage}>Last</a>
         </li>
       ];
     }
